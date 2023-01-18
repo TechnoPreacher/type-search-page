@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: custom search page template
+ * Template Name: type search page template
  * Template Post Type: page
  */
 
@@ -9,7 +9,8 @@
 <?php get_header(); ?>
 <?php the_content(); ?>
 
-<?php wp_nonce_field( 'search_plugin' ); ?>
+<?php wp_nonce_field( PLUGIN_ACRONYM.'_nonce' ); ?>
+
 <!-- another way is to create nonce with script localization. -->
 
 <div class="input-group  p-4">

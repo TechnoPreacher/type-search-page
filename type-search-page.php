@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Custom Search Page
- * Description: Add page template with AJAX-based search engine
+ * Plugin Name: Type Search Page
+ * Description: Add page template with Review post type
  * Version: 1.1
  * Text Domain: search
  * Domain Path: /lang/
@@ -11,97 +11,88 @@
  * Requires PHP: 7.4
  */
 
-add_action( 'wp', 'add_scripts' );
-add_action( 'plugins_loaded', 'csp_loaded' );// set initial conditions.
-add_action( 'wp_ajax_csp', 'search_posts_query_new' );// AJAX for registered users.
-add_action( 'wp_ajax_nopriv_csp', 'search_posts_query_new' );// AJAX for unregistered users.
+// plugin identification constant.
+define( 'PLUGIN_ACRONYM', 'tsp' );
 
-register_activation_hook( __FILE__, 'csp_activate' );
-register_deactivation_hook( __FILE__, 'csp_deactivate' );// remove plugin actions.
+require_once __DIR__ . '/includes/options.php';// option page.
+require_once __DIR__ . '/includes/helpers.php';// add some functions.
 
-// set 'settings' link to plugin's row on plugin page.
-add_filter( 'plugin_action_links', 'add_plugin_link', 10, 2 );
-
-require_once __DIR__ . '/includes/custom-search-page-options.php';// option page.
-require_once __DIR__ . '/includes/csp-helpers.php';// add some functions.
-
-function add_scripts() {
-	if ( wp_basename( get_page_template_slug() ) === 'csp-template' ) {
-		add_action( 'wp_enqueue_scripts', 'required_scripts' );
+add_action( 'wp', function () {
+	if ( wp_basename( get_page_template_slug() ) === 'tsp-template' ) {
+		add_action( 'wp_enqueue_scripts',
+			function () {
+				wp_enqueue_style(
+					'bootstrap',
+					'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css'
+				); // bootstrap.
+				wp_enqueue_script(
+					'search-js',
+					plugins_url(
+						'/js/type-search-page-scripts.js',
+						__FILE__
+					), // js script path.
+					array(
+						'jquery', // JQuery core loaded first.
+					),
+					'1.0',
+					true
+				);
+				$variables = array(
+					'plugin_acronym' => PLUGIN_ACRONYM,
+					'ajax_url'       => admin_url( 'admin-ajax.php' ), // ajax solver.
+				);
+				wp_localize_script(
+					'search-js',
+					'custom_search_page',
+					$variables
+				);// AJAX-url to frontage into custom_search_page object.
+				// it can be create nonce with wp_create_nonce() and add like variable in search_plugin object.
+				// https://wordpress.stackexchange.com/questions/231797/what-is-nonce-and-how-to-use-it-with-ajax-in-wordpress.
+			}
+		);
 	}
-}
+} );
 
-function required_scripts() {
-	wp_enqueue_style(
-		'bootstrap',
-		'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css'
-	); // bootstrap.
-	wp_enqueue_script(
-		'search-js',
-		plugins_url(
-			'/js/custom-search-page-scripts.js',
-			__FILE__
-		), // js script path.
-		array(
-			'jquery', // JQuery core loaded first.
-		),
-		'1.0',
-		true
-	);
-	$variables = array(
-		'ajax_url' => admin_url( 'admin-ajax.php' ), // ajax solver.
-	);
-	wp_localize_script(
-		'search-js',
-		'custom_search_page',
-		$variables
-	);// AJAX-url to frontage into custom_search_page object.
-	// it can be create nonce with wp_create_nonce() and add like variable in search_plugin object.
-	// https://wordpress.stackexchange.com/questions/231797/what-is-nonce-and-how-to-use-it-with-ajax-in-wordpress.
-}
-
-function csp_activate() {
+register_activation_hook( __FILE__, function () {
 	// TODO some activation actions.
-}
+} );
 
-function csp_deactivate() {
+register_deactivation_hook( __FILE__, function () {
 	unload_textdomain( 'search' );
-	delete_option( 'csp_options' );// delete from db.
+	delete_option( 'tsp_options' );// delete from db.
 	unregister_setting(
-		'csp_options',
-		'csp_options',
+		'tsp_options',
+		'tsp_options',
 	);
-}
+} );// remove plugin actions.
 
-function csp_loaded() {
-	add_filter( 'theme_page_templates', 'add_csp_template' ); // set to template list.
-	add_filter( 'template_include', 'set_csp_template', 1 );
+add_action( 'plugins_loaded', function () {
+	add_filter( 'theme_page_templates',
+		function ( $templates ) { // add template to dropdown lists of templates.
+			$templates['tsp-template'] = __(
+				'Type Review Search Template (tsp)',
+				'search'
+			); // plugin_dir_path( __FILE__ ) . 'search-plugin-template.php'.
+
+			return $templates;
+		}
+	); // set to template list.
+	add_filter( 'template_include',
+		function ( $template
+		) { // override standard template for page if tsp_template selected by user - proper decision!
+			return ( ( basename( get_page_template_slug() ) === 'tsp-template' ) ? plugin_dir_path( __FILE__ ) . 'type-search-page-template.php' : $template );
+		}
+		, 1 );
 	$text_domain_dir = dirname( plugin_basename( __FILE__ ) ) . '/lang/'; // localization.
 	load_plugin_textdomain( 'search', false, $text_domain_dir );
-}
+} );
 
-// add template to dropdown lists of templates.
-function add_csp_template( $templates ) {
-	$templates['csp-template'] = __(
-		'CSP Search Template',
-		'search'
-	); // plugin_dir_path( __FILE__ ) . 'search-plugin-template.php'.
+$ajax_routine = function () {
 
-	return $templates;
-}
-
-// override standard template for page if csp_template selected by user - proper decision!
-function set_csp_template( $template ) {
-	return ( ( basename( get_page_template_slug() ) === 'csp-template' ) ? plugin_dir_path( __FILE__ ) . 'custom-search-page-template.php' : $template );
-}
-
-
-function search_posts_query_new() {
-
-	$number = 9;// elements on page.
+	$number = 2;// elements on page.
 	$column = 3;//number of column for formating output.
 
-	check_ajax_referer( 'search_plugin', 'security' );// return 403 if not pass nonce verification.
+	check_ajax_referer( 'tsp_nonce', 'security' );// return 403 if not pass nonce verification.
 
 	$search_list  = 0;
 	$cat_name     = '';
@@ -113,7 +104,7 @@ function search_posts_query_new() {
 	if ( isset( $_POST['search_list'] ) ) {
 		$search_list = (int) sanitize_text_field( wp_unslash( $_POST['search_list'] ?? '0' ) );// page pagination number!
 		if ( $search_list > 0 ) {
-			$options  = get_option( 'csp_options' );// get all slugs from options.
+			$options  = get_option( 'tsp_options' );// get all slugs from options.
 			$cats     = explode( "\r\n", $options['filter_list'] );// make array of slug.
 			$cat_name = $cats[ $search_list - 1 ];// get selected value from array by income index.
 		}
@@ -237,19 +228,25 @@ function search_posts_query_new() {
 
 	die();
 
-}
+};
 
+add_action( 'wp_ajax_tsp', $ajax_routine );// AJAX for registered users.
+add_action( 'wp_ajax_nopriv_tsp', $ajax_routine );// AJAX for unregistered users.
 
-	// http:{host}/wp/wp-admin/options-general.php?page=custom-search-page.
+// http:{host}/wp/wp-admin/options-general.php?page=custom-search-page.
+//http://w.local/wp/wp-admin/options-general.php?page=type-search-page
 
-function add_plugin_link( $plugin_actions, $plugin_file ): array {
-	$new_actions      = array();
-	$options_page_url = esc_url( admin_url( 'options-general.php?page=custom-search-page' ) );
-	if ( 'custom-search-page/custom-search-page.php' === $plugin_file ) {
-		$new_actions['cl_settings'] =
-			'<a href="' . $options_page_url . '">' . __( 'Settings', 'search' ) . '</a>';
-	}
+add_filter( 'plugin_action_links', // set 'settings' link to plugin's row on plugin page.
+	function ( $plugin_actions, $plugin_file ): array {
+		$new_actions      = array();
+		$options_page_url = esc_url( admin_url( 'options-general.php?page=type-search-page' ) );
+		if ( 'type-search-page/type-search-page.php' === $plugin_file ) {
+			$new_actions['cl_settings'] =
+				'<a href="' . $options_page_url . '">' . __( 'Settings', 'search' ) . '</a>';
+		}
 
-	return array_merge( $new_actions, $plugin_actions );
-}
-
+		return array_merge( $new_actions, $plugin_actions );
+	},
+	10,
+	2
+);

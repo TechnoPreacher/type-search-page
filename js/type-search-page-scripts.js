@@ -50,7 +50,7 @@ let functionAjax = function (auto) {
             url: window.custom_search_page.ajax_url,// url for WP ajax url (get on frontend! set in wp_localize_script like object).
 
             data: {
-                action: 'csp',// must be equal to add_action( 'wp_ajax_filter_plugin', 'ajax_filter_posts_query' ).
+                action: custom_search_page.plugin_acronym,// must be equal to add_action( 'wp_ajax_filter_plugin', 'ajax_filter_posts_query' ).
                 search_list: search_index,
                 security: jQuery('#_wpnonce').val(),
                 page_number: num,

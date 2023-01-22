@@ -47,17 +47,15 @@ let functionAjax = function (auto) {
     jQuery.ajax(
         {
             type: 'POST',
-            url: window.custom_search_page.ajax_url,// url for WP ajax url (get on frontend! set in wp_localize_script like object).
-
+            url: window.obj.ajax_url,// url for WP ajax url (get on frontend! set in wp_localize_script like object).
             data: {
-                action: custom_search_page.plugin_acronym,// must be equal to add_action( 'wp_ajax_filter_plugin', 'ajax_filter_posts_query' ).
+                action: obj.plugin_acronym,// must be equal to add_action( 'wp_ajax_filter_plugin', 'ajax_filter_posts_query' ).
                 search_list: search_index,
                 security: jQuery('#_wpnonce').val(),
                 page_number: num,
                 url: url,
                 search_query: search_val,
             },
-
             success: function (response) {
                 jQuery('#search_result').replaceWith(response.data.html);// change page content without refresh.
                 jQuery("#search_query").val(response.data.search_query);

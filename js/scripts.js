@@ -53,6 +53,8 @@ let functionAjax = function (auto) {
             data: {
                 action: obj.plugin_acronym,// must be equal to add_action( 'wp_ajax_filter_plugin', 'ajax_filter_posts_query' ).
                 search_list: search_index,
+                begin_date:jQuery('#begin_date').val(),
+                end_date:jQuery('#end_date').val(),
                 search_cats:jQuery('#review_cat').val(),
                 security: jQuery('#_wpnonce').val(),
                 page_number: num,

@@ -15,10 +15,11 @@ $ajax_action = function () {
 	$pagination_type = ! empty( $options['pagination_type'] ) ? $options['pagination_type'] : 'digit';
 
 	if ( isset( $_POST['search_cats'] ) ) {
-$ar  = $_POST['search_cats'] ;
-		$ss=array();
-foreach ($ar as $v)
-{$ss[] =$v;}
+		$ar = $_POST['search_cats'];
+		$ss = array();
+		foreach ( $ar as $v ) {
+			$ss[] = $v;
+		}
 	}
 
 
@@ -40,27 +41,20 @@ foreach ($ar as $v)
 	if ( isset( $_POST['search_query'] ) ) {
 		$search_query = sanitize_text_field( wp_unslash( $_POST['search_query'] ) );// page title.
 	}
+
 	$args = array(
 		'post_type'      => PLUGIN_CONTENT_TYPE,
-		//'s'              => $search_query,
-
-		//'tag' => 'kat_1',
-		//	'category_name'  => 'review_cat',//$cat_name,
-	//	'category_name' => 'kat_1',
 		'posts_per_page' => $number,
 		'paged'          => $paged,
-		'order'          => 'DESC',
-//		https://misha.agency/wordpress/date_query.html
-		'date_query'    => array(
-			'column'  => 'post_date',
-			'after'   => '-7 days',  // -7 Means last 7 days
-
-		//	'compare'   => 'BETWEEN'
-		)
-
+		'order'          => 'ASC',// 'DESC',
 	);
 
-	if (!empty($ss)){
+	if ( ! empty( $search_query ) ) {
+		$args['s'] = $search_query;
+	}
+
+
+	if ( ! empty( $ss ) ) {
 		$args['tax_query'] = array(
 			array(
 				'taxonomy' => 'review_cat',
@@ -68,6 +62,63 @@ foreach ($ar as $v)
 				'terms'    => $ss,//array( 'cat_2','kat_1' ),
 			),
 		);
+	}
+
+	$begin_date = ! empty( $_POST['begin_date'] ) ? $_POST['begin_date'] : '';
+	$end_date   = ! empty( $_POST['end_date'] ) ? $_POST['end_date'] : '';
+
+	if ( '' !== $begin_date && '' == $end_date ) {
+		$begin_date         = explode( '-', $begin_date );
+		$begin_date_query   = array(
+			'after'     => array( // после этой даты
+				'year'  => $begin_date[0],
+				'month' => $begin_date[1],
+				'day'   => $begin_date[2],
+			),
+			'inclusive' => true
+		);
+		$args['date_query'] = array(
+			$begin_date_query,
+		);
+	}
+
+	if ( '' !== $end_date && '' == $begin_date ) {
+		$end_date           = explode( '-', $end_date );
+		$end_date_query = array(
+			'before'    => array( // после этой даты
+				'year'  => $end_date[0],
+				'month' => $end_date[1],
+				'day'   => $end_date[2],
+			),
+			'inclusive' => true
+		);
+
+		$args['date_query'] = array(
+			$end_date_query,
+		);
+	}
+
+	if ( '' !== $begin_date && '' !== $end_date ) {
+		$begin_date = explode( '-', $begin_date );
+		$end_date   = explode( '-', $end_date );
+
+		$args['date_query'] = array(
+			array(
+				'after'     => array( // после этой даты
+					'year'  => $begin_date[0],
+					'month' => $begin_date[1],
+					'day'   => $begin_date[2],
+				),
+				'before'    => array( // до этой даты
+					'year'  => $end_date[0],
+					'month' => $end_date[1],
+					'day'   => $end_date[2],
+				),
+				'inclusive' => true
+			)
+		);
+
+
 	}
 
 
@@ -120,8 +171,6 @@ foreach ($ar as $v)
 	if ( '' !== $_row ) {// wrapping last odd col element as new row (if exists)
 		$html_output .= '<div class="row">' . $_row . '</div>';
 	}
-
-
 
 
 	if ( 'digit' == $pagination_type ) {

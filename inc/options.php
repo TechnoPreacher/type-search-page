@@ -42,9 +42,9 @@ function tsp_register_settings() {
 	);
 
 	add_settings_field(
-		'find_slug',
-		__( 'Post type slug', PLUGIN_TEXT_DOMAIN ) . ' ("post" ' . __( 'if empty', 'search' ) . ')',
-		'tsp_find_slug',
+		'format_of_view',
+		__( 'Format for output view', PLUGIN_TEXT_DOMAIN ),
+		PLUGIN_ACRONYM.'_format_of_view',
 		'tsp',
 		'tsp_settings'
 	);
@@ -60,11 +60,10 @@ function tsp_register_settings() {
 
 
 function tsp_validate() {
-
-	if ( empty( $_POST['contact'] ) ) {
-		$newinput['find_slug'] = '1';
+	if ( empty( $_POST['format_of_view'] ) ) {
+		$newinput['format_of_view'] = '1';
 	} else {
-		$newinput['find_slug'] = sanitize_text_field( trim( $_POST['contact'] ) );
+		$newinput['format_of_view'] = sanitize_text_field( trim( $_POST['format_of_view'] ) );
 	}
 
 	if ( empty( $_POST['pagination'] ) ) {
@@ -98,7 +97,7 @@ function tsp_pagination_type() {
 				break;
 		}
 	}
-	$a = '
+	$output = '
 	<p><input type="radio" id="pag_view1" name="pagination" value="digit" '.$digit_checked.'>
     <label for="pag_view1">Digits</label></p>
     <p><input type="radio" id="pag_view2" name="pagination" value="scroll" '.$scroll_checked.'>
@@ -106,18 +105,15 @@ function tsp_pagination_type() {
     </p><input type="radio" id="pag_view3" name="pagination" value="more" '.$more_checked.'>
     <label for="pag_view3">More</label></p>
     ';
-
-	echo $a;
+	_e($output);
 }
 
-function tsp_find_slug() {
+function tsp_format_of_view() {
 	$options = get_option( 'tsp_options' );
-
 	$list_checked = '';
 	$grid_checked = '';
-
-	if ( isset( $options['find_slug'] ) ) {
-		switch ( $options['find_slug'] ) {
+	if ( isset( $options['format_of_view'] ) ) {
+		switch ( $options['format_of_view'] ) {
 			case 'list':
 				$list_checked = 'checked';
 				break;
@@ -126,17 +122,10 @@ function tsp_find_slug() {
 				break;
 		}
 	}
-
-
-	$a = '
-	<p><input type="radio" id="post_view1" name="contact" value="list" '.$list_checked.'>
+	$output = '
+	<p><input type="radio" id="post_view1" name="format_of_view" value="list" '.$list_checked.'>
     <label for="post_view1">List</label></p>
-    <p><input type="radio" id="post_view2" name="contact" value="grid" '.$grid_checked.'>
+    <p><input type="radio" id="post_view2" name="format_of_view" value="grid" '.$grid_checked.'>
     <label for="post_view2">Grid</label></p>';
-
-	//if ( isset( $options['find_slug'] ) ) {
-	echo $a;//"<input id='find_slug' name='tsp_options[find_slug]' type='text' value='" . esc_attr( $options['find_slug'] ) . "' />";
-	//} else {
-	//	echo $a;// "<input id='find_slug' name='tsp_options[find_slug]' type='text' value='post'/>";
-//	}
+    _e($output);
 }

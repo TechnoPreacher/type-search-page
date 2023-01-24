@@ -1,4 +1,6 @@
 let functionAjax = function (auto) {
+//   alert(jQuery('#review_cat').val());
+
 
     //default settings.
     let pos = 1;
@@ -51,6 +53,7 @@ let functionAjax = function (auto) {
             data: {
                 action: obj.plugin_acronym,// must be equal to add_action( 'wp_ajax_filter_plugin', 'ajax_filter_posts_query' ).
                 search_list: search_index,
+                search_cats:jQuery('#review_cat').val(),
                 security: jQuery('#_wpnonce').val(),
                 page_number: num,
                 url: url,
@@ -70,6 +73,7 @@ jQuery(
         functionAjax(true);// make AJAX content update without check manual settings.
     }
 );
+
 
 jQuery(
     function ($) {
@@ -94,4 +98,7 @@ jQuery(
         );
     }
 );
+
+
+
 

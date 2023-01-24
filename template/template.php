@@ -21,52 +21,53 @@ $now_date = "";
 //$options = get_option( 'tsp_options' );
 //$list    = $options['pagination_type'];
 //$list=explode("\r\n",$list);
+
+
 ?>
 
 
+<div class="row ml-2">
 
 
+    <label class="input-group-text" for="cat">cat</label>
 
 <?php
-
-
 $list = wp_dropdown_categories( [
-	'taxonomy'   => 'category',
+	'taxonomy'   => PLUGIN_CONTENT_TYPE . '_cat',
 	'multiple'   => true,
-	'selected'   => '1, 2', // selected terms…
+	//'selected'   => '1, 2', // selected terms…
 	'hide_empty' => false,
+    'echo'=>false,
+    'class'=>'',
+    'name'=>PLUGIN_CONTENT_TYPE.'_cat',
+	//'value_field'       => 'term_id'
 ] );
 
-$list=str_replace('<select','<select multiple ',$list);
+$list=str_replace('<select','<select multiple class="col mr-3" size="1" ',$list);
+//$list=str_replace('class=\'postform\'','',$list);
+
+
 echo $list;
+
 ?>
 
-
-
-    <label class="input-group-text" for="search_list">Options</label>
-
-    <select class="custom-select mr-5" id="search_list">
-        <option selected><?php _e( 'select...', 'search' ) ?></option>
-		<?php //foreach ($list as $key_list=>$value_list):
-		?>
-        <option value="<?= $list ?>"><?= $list ?></option>
-		<?php //endforeach;
-		?>
-    </select>
-
-
     <label class="input-group-text" for="begin_date">From:</label>
-    <input class="mr-2" type="date" id="begin_date" name="begin_date" value="<?= $now_date ?>">
+    <input class="mr-1" type="date" id="begin_date" name="begin_date" value="<?= $now_date ?>">
 
     <label class="input-group-text" for="end_date">To:</label>
-    <input class="mr-5" type="date" id="end_date" name="end_date" value="<?= $now_date ?>">
+    <input class="mr-3" type="date" id="end_date" name="end_date" value="<?= $now_date ?>">
+
+    <label class="input-group-text" for="search_query"><?php esc_attr_e( 'Query:', 'search' ); ?></label>
+    <input class="col mr-3" type="text"  id="search_query">
+
+    <button class="col" type="button" id="find_button"><?php esc_html_e( 'Find', 'search' ); ?></button>
 
 
-    <div class="input-group-prepend ml-5">
-        <label class="input-group-text" for="search_query"><?php esc_attr_e( 'Search', 'search' ); ?></label>
-    </div>
-    <input type="text" class="form-control" id="search_query">
-    <button class="ml-5" type="button" id="find_button"><?php esc_html_e( 'Find', 'search' ); ?></button>
+</div>
+
+
+
+
 
 
 
@@ -75,13 +76,13 @@ echo $list;
 
 <?php
 
-query_posts(array(
-   'post_type' => PLUGIN_CONTENT_TYPE,
-)); ?>
-<?php
-while (have_posts()) : the_post(); ?>
-<h2><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></h2>
-<p><?php the_excerpt(); ?></p>
+//query_posts(array(
+  // 'post_type' => PLUGIN_CONTENT_TYPE,
+//));
 
-<?php endwhile;
-get_footer(); ?>
+
+
+
+
+
+  get_footer();

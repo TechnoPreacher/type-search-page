@@ -55,3 +55,12 @@ add_action( 'save_post', 'my_extra_fields_update', 0 ); // включаем об
 // custom content type.
 add_filter( 'manage_'.PLUGIN_CONTENT_TYPE.'_posts_columns', $manage_events_posts_columns );
 add_action( 'manage_'.PLUGIN_CONTENT_TYPE.'_posts_custom_column', $manage_events_posts_custom_column );
+
+//function mytheme_infinite_scroll_init() {
+//	add_theme_support( 'infinite-scroll', array(
+//		'container' => 'content',
+//		'render'    => 'mytheme_infinite_scroll_render',
+//		'footer'    => 'wrapper',
+//	) );
+//}
+//add_action( 'init', 'mytheme_infinite_scroll_init' );

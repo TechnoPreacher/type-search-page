@@ -23,6 +23,7 @@ $create_tax = function () {
 		'show_ui'           => true,
 		'show_admin_column' => true,
 		'query_var'         => true,
+
 		'rewrite'           => array( 'slug' => 'type' ),
 	);
 	register_taxonomy( PLUGIN_CONTENT_TYPE . '_cat', array( PLUGIN_CONTENT_TYPE ), $args );

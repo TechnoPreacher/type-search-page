@@ -40,7 +40,7 @@ $wp_action = function () {
 $plugins_loaded_action = function () {
 
 	add_filter( 'theme_page_templates',
-		function ( $templates ) { // add template to dropdown lists of templates.
+		fu nction ( $templates ) { // add template to dropdown lists of templates.
 			$templates[PLUGIN_ACRONYM.'-template'] = __(
 				'Type Review Search Template '. PLUGIN_ACRONYM,
 				PLUGIN_TEXT_DOMAIN

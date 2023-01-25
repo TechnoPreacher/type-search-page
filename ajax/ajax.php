@@ -4,7 +4,6 @@ $ajax_action = function () {
 	$number = 4;// elements on page.
 	check_ajax_referer( PLUGIN_ACRONYM . '_nonce', 'security' );// return 403 if not pass nonce verification.
 	$search_list  = 0;
-	$cat_name     = '';
 	$url          = '';
 	$paged        = '';
 	$search_query = '';
@@ -14,24 +13,16 @@ $ajax_action = function () {
 	$format_of_view  = ! empty( $options['format_of_view'] ) ? $options['format_of_view'] : 'list';
 	$pagination_type = ! empty( $options['pagination_type'] ) ? $options['pagination_type'] : 'digit';
 
-	if ( isset( $_POST['search_cats'] ) ) {
-		$ar = $_POST['search_cats'];
-		$ss = array();
-		foreach ( $ar as $v ) {
-			$ss[] = $v;
+	if ( !empty( $_POST['search_cats'] ) ) {
+		$search_cats = $_POST['search_cats'];
+		$search_cats_array = array();
+		foreach ( $search_cats as $cat ) {
+		if (!empty($cat)) {
+			$search_cats_array[] = $cat;}
 		}
 	}
 
 
-	// get category slug by user selected from index.
-	if ( isset( $_POST['search_list'] ) ) {
-		$search_list = (int) sanitize_text_field( wp_unslash( $_POST['search_list'] ?? '0' ) );// page pagination number!
-		if ( $search_list > 0 ) {
-			$options  = get_option( PLUGIN_ACRONYM . '_options' );// get all slugs from options.
-			$cats     = explode( "\r\n", $options['filter_list'] );// make array of slug.
-			$cat_name = $cats[ $search_list - 1 ];// get selected value from array by income index.
-		}
-	}
 	if ( isset( $_POST['url'] ) ) {
 		$url = sanitize_text_field( wp_unslash( $_POST['url'] ?? '' ) );// page url (need for correct pagination base!).
 	}
@@ -53,13 +44,12 @@ $ajax_action = function () {
 		$args['s'] = $search_query;
 	}
 
-
-	if ( ! empty( $ss ) ) {
+	if ( ! empty( $search_cats_array ) ) {
 		$args['tax_query'] = array(
 			array(
 				'taxonomy' => 'review_cat',
-				'field'    => 'term_id',//'slug',
-				'terms'    => $ss,//array( 'cat_2','kat_1' ),
+				'field'    => 'term_id', // 'slug'.
+				'terms'    => $search_cats_array, // array( 'cat_2','kat_1' ).
 			),
 		);
 	}
@@ -67,60 +57,34 @@ $ajax_action = function () {
 	$begin_date = ! empty( $_POST['begin_date'] ) ? $_POST['begin_date'] : '';
 	$end_date   = ! empty( $_POST['end_date'] ) ? $_POST['end_date'] : '';
 
-	if ( '' !== $begin_date && '' == $end_date ) {
-		$begin_date         = explode( '-', $begin_date );
-		$begin_date_query   = array(
-			'after'     => array( // после этой даты
-				'year'  => $begin_date[0],
-				'month' => $begin_date[1],
-				'day'   => $begin_date[2],
-			),
+	$after_date  = array();
+	$before_date = array();
+
+	if ( '' !== $begin_date ) {
+		$begin_date_array = explode( '-', $begin_date );
+		$after_date       = array( // после этой даты
+			'year'  => $begin_date_array[0],
+			'month' => $begin_date_array[1],
+			'day'   => $begin_date_array[2],
+		);
+	}
+
+	if ( '' !== $end_date ) {
+		$end_date_array = explode( '-', $end_date );
+		$before_date    = array( //
+			'year'  => $end_date_array[0],
+			'month' => $end_date_array[1],
+			'day'   => $end_date_array[2],
+		);
+	}
+
+	$args['date_query'] = array(
+		array(
+			'after'     => $after_date,
+			'before'    => $before_date,
 			'inclusive' => true
-		);
-		$args['date_query'] = array(
-			$begin_date_query,
-		);
-	}
-
-	if ( '' !== $end_date && '' == $begin_date ) {
-		$end_date           = explode( '-', $end_date );
-		$end_date_query = array(
-			'before'    => array( // после этой даты
-				'year'  => $end_date[0],
-				'month' => $end_date[1],
-				'day'   => $end_date[2],
-			),
-			'inclusive' => true
-		);
-
-		$args['date_query'] = array(
-			$end_date_query,
-		);
-	}
-
-	if ( '' !== $begin_date && '' !== $end_date ) {
-		$begin_date = explode( '-', $begin_date );
-		$end_date   = explode( '-', $end_date );
-
-		$args['date_query'] = array(
-			array(
-				'after'     => array( // после этой даты
-					'year'  => $begin_date[0],
-					'month' => $begin_date[1],
-					'day'   => $begin_date[2],
-				),
-				'before'    => array( // до этой даты
-					'year'  => $end_date[0],
-					'month' => $end_date[1],
-					'day'   => $end_date[2],
-				),
-				'inclusive' => true
-			)
-		);
-
-
-	}
-
+		)
+	);
 
 	//global $wp_query;
 	$query = new WP_Query();
@@ -146,6 +110,7 @@ $ajax_action = function () {
 					 '<p>' . $image . '</p>' .
 					 '<p><a href = ' . $link . '>' . $d . '</a></p>' .
 					 '</div>';
+
 			if ( $index % 2 == 0 ) {
 				$html_output .= '<div class="row">' . $_row . '</div>';
 				$index       = 0;
@@ -198,6 +163,20 @@ $ajax_action = function () {
 		if ( ! empty( $search_list ) ) {
 			$add_args['search_list'] = $search_list;
 		}
+
+		if ( ! empty( $begin_date ) ) {
+			$add_args['begin_date'] = $begin_date;
+		}
+
+		if ( ! empty( $end_date ) ) {
+			$add_args['end_date'] = $end_date;
+		}
+
+		if ( ! empty( $search_cats ) ) {
+			$add_args['search_cats'] = implode(',',$search_cats_array);
+		}
+
+
 		$pagination_args['add_args'] = $add_args;
 		// work only if set 'permalink structure' as 'Post name' in Settings/Permalinks in admin panel.
 		$links = paginate_links( $pagination_args );
@@ -213,7 +192,10 @@ $ajax_action = function () {
 	$data = array(
 		'search_query' => $search_query,
 		'search_list'  => $search_list,
+		'begin_date'   => $begin_date,
+		'end_date'     => $end_date,
 		'html'         => $html_output,
+		'search_cats' => implode(',',$search_cats_array), // make string.
 	);
 
 

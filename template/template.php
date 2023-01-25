@@ -12,10 +12,7 @@
 <!-- another way is to create nonce with script localization. -->
 
 
-<?php
-$now_date = date( "Y-m-d" );
-$now_date = "";
-?>
+
 
 <?php
 //$options = get_option( 'tsp_options' );
@@ -52,23 +49,17 @@ echo $list;
 ?>
 
     <label class="input-group-text" for="begin_date">From:</label>
-    <input class="mr-1" type="date" id="begin_date" name="begin_date" value="<?= $now_date ?>">
+    <input class="mr-1" type="date" id="begin_date" name="begin_date">
 
     <label class="input-group-text" for="end_date">To:</label>
-    <input class="mr-3" type="date" id="end_date" name="end_date" value="<?= $now_date ?>">
+    <input class="mr-3" type="date" id="end_date" name="end_date">
 
     <label class="input-group-text" for="search_query"><?php esc_attr_e( 'Query:', 'search' ); ?></label>
     <input class="col mr-3" type="text"  id="search_query">
 
     <button class="col" type="button" id="find_button"><?php esc_html_e( 'Find', 'search' ); ?></button>
 
-
 </div>
-
-
-
-
-
 
 
 <section id="search_result">
@@ -79,10 +70,6 @@ echo $list;
 //query_posts(array(
   // 'post_type' => PLUGIN_CONTENT_TYPE,
 //));
-
-
-
-
 
 
   get_footer();

@@ -64,7 +64,6 @@ let functionAjax = function (auto) {
             search_terms = jQuery('#review_cat').val();
         }
 
-
         jQuery.ajax(
             {
                 type: 'POST',
@@ -73,25 +72,24 @@ let functionAjax = function (auto) {
                     action: obj.plugin_acronym,// must be equal to add_action( 'wp_ajax_filter_plugin', 'ajax_filter_posts_query' ).
                     begin_date: search_begin_date,
                     end_date: search_end_date,
-                    search_cats:search_terms,//search_terms,// jQuery('#review_cat').val(),
+                    search_cats: search_terms,//search_terms,// jQuery('#review_cat').val(),
                     security: jQuery('#_wpnonce').val(),
                     page_number: num,
                     url: url,
                     search_query: search_val,
                 },
                 success: function (response) {
+                   //
                     jQuery('#search_result').replaceWith(response.data.html);// change page content without refresh.
+
                     jQuery("#search_query").val(response.data.search_query);
                     jQuery('#begin_date').val(response.data.begin_date);
                     jQuery('#end_date').val(response.data.end_date);
-
                     //set review_cat selected options
                     let search_cats = response.data.search_cats;
                     jQuery.each(search_cats.split(","), function (i, cat) {
                         jQuery("#review_cat option[value='" + cat + "']").prop("selected", true);
                     });
-
-                    //  jQuery('#review_cat').val(response.data.search_cats);
                 }
             }
         );
@@ -104,30 +102,48 @@ jQuery(
     }
 );
 
+
+
 jQuery(
     function ($) {
-        // set many selectors and events belong to one handler.
-        $('#search_query,#find_button,#search_list').on(
-            'keypress change click select',
-            function (event) {
-                // такая конструкция нужна чтоб в текстовых инпутах слать аякс только по энтеру или кнопке.
-                if ((this.id === 'search_query') || (this.id === 'find_button') || (this.id === 'search_list')) {
-                    if ((event.which === 13) || (this.id === 'find_button') || (this.id === 'search_list')) {
-                        //minimum length warning!
-                        let length = $('#search_query').val().length;
-                        if (length < 3 && length > 0) {
-                            alert('length of search query must start from 3 chars!');
-                        } else {
-                            //  event.preventDefault();// cancel last blank for input.
-                            functionAjax(false);// make AJAX content update with check manual settings.
-                        }
-                    }
+        $('#find_button').on(
+            'click',
+            function () {
+                let length = $('#search_query').val().length;
+                if (length < 3 && length > 0) {
+                    alert('length of search query must start from 3 chars!');
+                } else {
+                    //  event.preventDefault();// cancel last blank for input.
+                    functionAjax(false);// make AJAX content update with check manual settings.
                 }
             }
         );
     }
 );
 
+
+
+jQuery(function($){ // use jQuery code inside this to avoid "$ is not defined" error
+    $('#load_more').click(function(){
+alert('666');
+        var button = $(this);
+       // if( data ) {
+            button.text( 'More posts---' ).prev().before('<div><p>QASSDSCFEECCDDCSDWESXZ</p></div>'); // insert new posts
+         //   misha_loadmore_params.current_page++;
+
+           // if ( misha_loadmore_params.current_page == misha_loadmore_params.max_page )
+             //   button.remove(); // if last page, remove the button
+
+            // you can also fire the "post-load" event here if you use a plugin that requires it
+            // $( document.body ).trigger( 'post-load' );
+       // } else {
+         //   button.remove(); // if no data, remove the button as well
+       // }
+
+
+
+    });
+});
 
 
 

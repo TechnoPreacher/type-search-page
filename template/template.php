@@ -1,49 +1,28 @@
 <?php
-/**
- * Template Name: type search page template
- * Template Post Type: page
- */
+	/**
+	 * Template Name: type search page template
+	 * Template Post Type: page
+	 */
 ?>
 
 <?php get_header(); ?>
 <?php the_content(); ?>
 <?php wp_nonce_field( PLUGIN_ACRONYM . '_nonce' ); ?>
-
     <!-- another way is to create nonce with script localization. -->
 
-
-<?php
-//$options = get_option( 'tsp_options' );
-//$list    = $options['pagination_type'];
-//$list=explode("\r\n",$list);
-
-
-?>
-
-
     <div class="row ml-2">
-
-
         <label class="input-group-text" for="cat">cat</label>
-
 		<?php
-		$list = wp_dropdown_categories( [
-			'taxonomy'   => PLUGIN_CONTENT_TYPE . '_cat',
-			'multiple'   => true,
-			//'selected'   => '1, 2', // selected terms…
-			'hide_empty' => false,
-			'echo'       => false,
-			'class'      => '',
-			'name'       => PLUGIN_CONTENT_TYPE . '_cat',
-			//'value_field'       => 'term_id'
-		] );
-
-		$list = str_replace( '<select', '<select multiple class="col mr-3" size="1" ', $list );
-		//$list=str_replace('class=\'postform\'','',$list);
-
-
-		echo $list;
-
+			$list = wp_dropdown_categories( [
+				'taxonomy'   => PLUGIN_CONTENT_TYPE . '_cat',
+				'multiple'   => true,
+				'hide_empty' => false,
+				'echo'       => false,
+				'class'      => '',
+				'name'       => PLUGIN_CONTENT_TYPE . '_cat',
+			] );
+			$list = str_replace( '<select', '<select multiple class="col mr-3" size="1" ', $list );// multiply
+			echo $list;
 		?>
 
         <label class="input-group-text" for="begin_date">From:</label>
@@ -63,18 +42,13 @@
     </section>
 
 <?php
-$options         = get_option( PLUGIN_ACRONYM . '_options' );// get all slugs from options.
-$pagination_type = ! empty( $options['pagination_type'] ) ? $options['pagination_type'] : 'digit';
-if ('more'==$pagination_type):
-?>
-    <div class="row ml-2">
-        <button class="col m-3" type="button" id="load_more"><?php esc_html_e( 'Load more', 'search' ); ?></button>
-    </div>
-<?php endif;
+	$options         = get_option( PLUGIN_ACRONYM . '_options' );// get all slugs from options.
+	$pagination_type = $options['pagination_type'] ?? '';
+	if ( 'more' == $pagination_type ):
+		?>
+        <div class="row ml-2">
+            <button class="col m-3" type="button" id="load_more"><?php esc_html_e( 'Load more', 'search' ); ?></button>
+        </div>
+	<?php endif;
 
-//query_posts(array(
-// 'post_type' => PLUGIN_CONTENT_TYPE,
-//));
-
-
-get_footer();
+	get_footer();
